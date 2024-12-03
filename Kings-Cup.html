@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kings Cup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #2c2c2c; /* Dark grey background */
+      color: white;
+    }
+
+    .card-container {
+      perspective: 1000px;
+    }
+
+    .card {
+      width: 300px;
+      height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: transform 0.6s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      border-radius: 10px;
+    }
+
+    .card-front {
+      background-color: #800000; /* Deep red for the front */
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .card-back {
+      background-color: white;
+      color: black;
+      border: 2px solid #000;
+      transform: rotateY(180deg);
+      padding: 10px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .card-symbol {
+      font-size: 30px;
+    }
+
+    .card-instruction {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="card-front" id="card-front">
+        KINGS CUP
+      </div>
+      <div class="card-back" id="card-back">
+        <!-- Content dynamically inserted -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cards = [
+  { value: "A", colour: "⚫", action: "Waterfall" },
+  { value: "2", colour: "⚫", action: "Take 2 drinks" },
+  { value: "3", colour: "⚫", action: "Take 3 drinks" },
+  { value: "4", colour: "⚫", action: "Everyone takes a drink" },
+  { value: "5", colour: "⚫", action: "The player to your right commences a round of Truth or Dare (or Drink) with you" },
+  { value: "6", colour: "⚫", action: "Copy previous card (unless King, in which case, copy the card before that)" },
+  { value: "7", colour: "⚫", action: "Wildcard - Player to your right chooses any card effect for you" },
+  { value: "8", colour: "⚫", action: "Starts Never Have I Ever - losers drink" },
+  { value: "9", colour: "⚫", action: "Start the Rhyming Game - losers drink" },
+  { value: "10", colour: "⚫", action: "Start the Number Game - losers drink" },
+  { value: "J", colour: "⚫", action: "Take a secret drink" },
+  { value: "Q", colour: "⚫", action: "Make a new rule for one other player" },
+  { value: "K", colour: "⚫", action: "Add to Kings Cup" },
+  { value: "Joker", colour: "⚫", action: "Reverse player order" },
+  { value: "Joker", colour: "🔴", action: "Keep on hand as an opt-out card" },
+  { value: "A", colour: "🔴", action: "Waterfall" },
+  { value: "2", colour: "🔴", action: "Player to your left takes 2 drinks" },
+  { value: "3", colour: "🔴", action: "Player to your left takes 3 drinks" },
+  { value: "4", colour: "🔴", action: "Everyone takes a drink" },
+  { value: "5", colour: "🔴", action: "Commence a Truth or Dare (or Drink) with the player to your right" },
+  { value: "6", colour: "🔴", action: "Copy previous card (unless King, in which case, copy the card before that). Card applies to player to the left." },
+  { value: "7", colour: "🔴", action: "Wildcard - Choose any card effect for the player to your left" },
+  { value: "8", colour: "🔴", action: "Player to your left starts Never Have I Ever - losers drink" },
+  { value: "9", colour: "🔴", action: "Player to your left starts the Rhyming Game - losers drink" },
+  { value: "10", colour: "🔴", action: "Player to your left starts the Number Game - losers drink" },
+  { value: "J", colour: "🔴", action: "Player to your left takes a secret drink" },
+  { value: "Q", colour: "🔴", action: "Make a new rule for everyone" },
+  { value: "K", colour: "🔴", action: "Add to Kings Cup" }
+];
+
+    let firstFlip = true; // Track if it's the first flip
+    let availableCards = [...cards]; // Copy of all cards to track available cards
+
+    function flipCard() {
+  const cardElement = document.querySelector('.card');
+  const cardBack = document.getElementById('card-back');
+  const cardFront = document.getElementById('card-front');
+
+  // If no cards are left, show RESET button
+  if (availableCards.length === 0) {
+    cardBack.innerHTML = `
+      <div class="card-instruction">RESET</div>
+    `;
+    cardElement.onclick = () => location.reload(); // Refresh the page
+    return;
+  }
+
+  // Get a random card and remove it from the available cards
+  const randomIndex = Math.floor(Math.random() * availableCards.length);
+  const randomCard = availableCards.splice(randomIndex, 1)[0];
+
+  // Set card back content with correct property names
+  cardBack.innerHTML = `
+    <div class="card-symbol">${randomCard.value} ${randomCard.colour}</div>
+    <div class="card-instruction">${randomCard.action}</div>
+  `;
+
+  // Ensure the front (KINGS CUP) isn't shown again
+  if (firstFlip) {
+    cardElement.style.transform = 'rotateY(180deg)';
+    cardFront.style.display = 'none';
+    firstFlip = false;
+  } else {
+    // Flip the card with animation
+    cardElement.style.transform = 'rotateY(0deg)';
+    setTimeout(() => {
+      cardElement.style.transform = 'rotateY(180deg)';
+    }, 100);
+  }
+}
+  </script>
+</body>
+</html>
